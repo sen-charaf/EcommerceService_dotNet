@@ -1,0 +1,299 @@
+﻿@inject Ecommerce.Services.CartService CartService
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - E-Commerce Store</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+
+    <style>
+        /* Amazon-like Header Styles */
+        .navbar-top {
+            background-color: #131921;
+            padding: 0.5rem 0;
+        }
+
+        .navbar-brand-custom {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+            text-decoration: none;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+            .navbar-brand-custom:hover {
+                color: #fff;
+                border-color: #fff;
+            }
+
+        .search-bar {
+            flex-grow: 1;
+            max-width: 800px;
+        }
+
+            .search-bar .input-group {
+                box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+            }
+
+            .search-bar input {
+                border: none;
+                padding: 0.75rem;
+                font-size: 0.95rem;
+            }
+
+                .search-bar input:focus {
+                    box-shadow: none;
+                    border: 2px solid #febd69;
+                }
+
+            .search-bar .btn-search {
+                background-color: #febd69;
+                border: none;
+                padding: 0 1.5rem;
+                color: #111;
+                font-weight: 500;
+            }
+
+                .search-bar .btn-search:hover {
+                    background-color: #f3a847;
+                }
+
+        .nav-item-custom {
+            color: #fff;
+            text-decoration: none;
+            padding: 0.5rem 0.75rem;
+            border: 1px solid transparent;
+            transition: border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+            .nav-item-custom:hover {
+                color: #fff;
+                border-color: #fff;
+            }
+
+            .nav-item-custom .nav-label-small {
+                font-size: 0.75rem;
+                color: #ccc;
+            }
+
+            .nav-item-custom .nav-label-large {
+                font-weight: 700;
+                font-size: 0.95rem;
+            }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: 10px;
+            background-color: #f08804;
+            color: #111;
+            font-weight: bold;
+            font-size: 0.85rem;
+            padding: 0.1rem 0.4rem;
+            border-radius: 10px;
+        }
+
+        .cart-icon-wrapper {
+            position: relative;
+        }
+
+        .cart-icon {
+            font-size: 2rem;
+        }
+
+        .navbar-secondary {
+            background-color: #232f3e;
+            padding: 0.5rem 0;
+        }
+
+            .navbar-secondary .nav-link {
+                color: #fff;
+                font-size: 0.9rem;
+                padding: 0.25rem 0.75rem;
+                transition: all 0.2s;
+            }
+
+                .navbar-secondary .nav-link:hover {
+                    color: #febd69;
+                }
+
+        @@media (max-width: 768px) {
+            .search-bar {
+                margin: 0.5rem 0;
+                order: 3;
+                width: 100%;
+            }
+
+            .navbar-brand-custom {
+                font-size: 1.2rem;
+            }
+
+            .nav-item-custom {
+                font-size: 0.8rem;
+            }
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <header>
+        <!-- Top Navigation Bar -->
+        <nav class="navbar navbar-top navbar-expand-lg">
+            <div class="container-fluid px-3">
+                <div class="d-flex align-items-center w-100 flex-wrap">
+                    <!-- Logo/Brand -->
+                    <a class="navbar-brand-custom" asp-page="/Index">
+                        <i class="bi bi-shop"></i> Ecommerce
+                    </a>
+
+                    <!-- Search Bar -->
+                    <div class="search-bar mx-3">
+                        <form asp-page="/Products/Index" method="get" class="d-flex">
+                            <div class="input-group">
+                                <input type="text"
+                                       name="search"
+                                       class="form-control"
+                                       placeholder="Search for products..."
+                                       aria-label="Search">
+                                <button class="btn btn-search" type="submit">
+                                    <i class="bi bi-search"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Right Navigation Items -->
+                    <div class="d-flex align-items-center ms-auto">
+                        <!-- Account -->
+                        <a asp-page="/Account/Login" class="nav-item-custom me-2">
+                            <span class="nav-label-small">Hello, Sign in</span>
+                            <span class="nav-label-large">Account & Lists</span>
+                        </a>
+
+                        <!-- Orders -->
+                        <a asp-page="/Orders/Index" class="nav-item-custom me-2">
+                            <span class="nav-label-small">Returns</span>
+                            <span class="nav-label-large">& Orders</span>
+                        </a>
+
+                        <!-- Cart -->
+                        <a asp-page="/Cart/Index" class="nav-item-custom cart-icon-wrapper">
+                            <i class="bi bi-cart3 cart-icon"></i>
+                            @{
+                                var cartItemCount = CartService.GetCartItemCount();
+                                if (cartItemCount > 0)
+                                {
+                                    <span class="cart-badge">@cartItemCount</span>
+                                }
+                            }
+                            <span class="nav-label-large">Cart</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Secondary Navigation Bar -->
+        <nav class="navbar navbar-secondary navbar-expand-lg">
+            <div class="container-fluid px-3">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#secondaryNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="secondaryNav">
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Products/Index">
+                                <i class="bi bi-list"></i> All Products
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Products/Index" asp-route-categoryId="1">Electronics</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Products/Index" asp-route-categoryId="2">Books</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Products/Index" asp-route-categoryId="3">Clothing</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Products/Index" asp-route-categoryId="4">Home & Kitchen</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" asp-page="/Products/Index" asp-route-categoryId="5">Sports</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-warning" asp-page="/Products/Deals">
+                                <i class="bi bi-lightning-fill"></i> Today's Deals
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <main role="main" class="pb-3">
+        @RenderBody()
+    </main>
+
+    <footer class="border-top footer text-muted bg-light py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-3">
+                    <h6>Get to Know Us</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">About Us</a></li>
+                        <li><a href="#" class="text-muted">Careers</a></li>
+                        <li><a href="#" class="text-muted">Press Releases</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6>Make Money with Us</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">Sell products</a></li>
+                        <li><a href="#" class="text-muted">Become an Affiliate</a></li>
+                        <li><a href="#" class="text-muted">Advertise</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6>Let Us Help You</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted">Your Account</a></li>
+                        <li><a href="#" class="text-muted">Returns Centre</a></li>
+                        <li><a href="#" class="text-muted">Help</a></li>
+                    </ul>
+                </div>
+                <div class="col-md-3">
+                    <h6>Connect With Us</h6>
+                    <ul class="list-unstyled">
+                        <li><a href="#" class="text-muted"><i class="bi bi-facebook"></i> Facebook</a></li>
+                        <li><a href="#" class="text-muted"><i class="bi bi-twitter"></i> Twitter</a></li>
+                        <li><a href="#" class="text-muted"><i class="bi bi-instagram"></i> Instagram</a></li>
+                    </ul>
+                </div>
+            </div>
+            <hr />
+            <div class="text-center">
+                <small>&copy; 2025 - Ecommerce - <a asp-page="/Privacy">Privacy</a></small>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

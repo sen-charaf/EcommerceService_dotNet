@@ -1,0 +1,91 @@
+﻿@model List<Ecommerce.ViewComponents.ProductWithViews>
+
+@if (Model != null && Model.Any())
+{
+    <div class="most-viewed-section mb-5">
+        <h3 style="font-size: 24px; font-weight: 700; margin-bottom: 20px; color: #0f1111;">
+            <i class="bi bi-fire" style="color: #ff6b00;"></i> Most Viewed Products
+        </h3>
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-5 g-3">
+            @foreach (var item in Model)
+            {
+                <div class="col">
+                    <a asp-page="/Products/Details" asp-route-id="@item.Product.Id" style="text-decoration: none; color: inherit;">
+                        <div class="card h-100 shadow-sm most-viewed-card">
+                            <div style="position: relative;">
+                                @if (!string.IsNullOrEmpty(item.Product.ImageUrl))
+                                {
+                                    <img src="@item.Product.ImageUrl"
+                                         class="card-img-top"
+                                         alt="@item.Product.Name"
+                                         style="height: 200px; object-fit: contain; padding: 15px; background-color: #f7f7f7;"
+                                         onerror="this.onerror=null; this.src='https://via.placeholder.com/200x200?text=No+Image';">
+                                }
+                                else
+                                {
+                                    <img src="https://via.placeholder.com/200x200?text=No+Image"
+                                         class="card-img-top"
+                                         alt="@item.Product.Name"
+                                         style="height: 200px; object-fit: contain; padding: 15px; background-color: #f7f7f7;">
+                                }
+                                <span class="badge bg-danger position-absolute top-0 end-0 m-2" style="font-size: 11px;">
+                                    <i class="bi bi-eye-fill"></i> @item.ViewCount
+                                </span>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-title" style="font-size: 14px; color: #0066c0; min-height: 40px; line-height: 1.3; font-weight: 400;">
+                                    @item.Product.Name
+                                </h6>
+                                <div class="mb-2" style="font-size: 12px; color: #565959;">
+                                    @if (item.Product.Category != null)
+                                    {
+                                        <span>@item.Product.Category.Name</span>
+                                    }
+                                </div>
+                                <p class="card-text mb-0" style="font-size: 18px; color: #b12704; font-weight: 700;">
+                                    $@item.Product.Price.ToString("N2")
+                                </p>
+                                @if (item.Product.Stock > 0)
+                                {
+                                    <small class="text-success">
+                                        <i class="bi bi-check-circle-fill"></i> In Stock
+                                    </small>
+                                }
+                                else
+                                {
+                                    <small class="text-danger">
+                                        <i class="bi bi-x-circle-fill"></i> Out of Stock
+                                    </small>
+                                }
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <style>
+        .most-viewed-card {
+            border-radius: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #ddd;
+        }
+
+        .most-viewed-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15) !important;
+        }
+
+        .most-viewed-section a {
+            display: block;
+            height: 100%;
+        }
+    </style>
+}
+else
+{
+    <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i> No product views yet. Visit some product pages to see the most viewed products here!
+    </div>
+}
