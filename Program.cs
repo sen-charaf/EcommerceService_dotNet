@@ -16,6 +16,7 @@ builder.Services.AddSession(options =>
 
 builder.Services.AddScoped<CartService>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IChatService, ChatService>();
 
 
 // Add services to the container.
@@ -31,6 +32,8 @@ builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
     return ConnectionMultiplexer.Connect(configuration);
 });
 builder.Services.AddScoped<RedisCacheService>();
+builder.Services.AddHttpClient();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -52,4 +55,31 @@ app.MapStaticAssets();
 app.MapRazorPages()
    .WithStaticAssets();
 
+
+// Add Chat API Endpoint
+app.MapPost("/api/chat/message", async (ChatRequest request, IChatService chatService) =>
+{
+    try
+    {
+        if (string.IsNullOrWhiteSpace(request?.Message))
+        {
+            return Results.BadRequest(new { reply = "Message cannot be empty." });
+        }
+
+        var reply = await chatService.GetChatResponseAsync(request.Message);
+        return Results.Ok(new { reply });
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("===== CHAT API ERROR =====");
+        Console.WriteLine(ex.ToString()); 
+        Console.WriteLine("==========================");
+        Console.WriteLine($"Chat API Error: {ex.Message}");
+        return Results.Problem("Sorry, I encountered an error. Please try again.");
+    }
+}); 
+
+
+
 app.Run();
+public record ChatRequest(string Message);

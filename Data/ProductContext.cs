@@ -17,5 +17,6 @@ namespace Ecommerce.Data
         }
 
         public DbSet<Ecommerce.Models.Product> Product { get; set; } = default!;
+        public DbSet<ShopPolicy> ShopPolicies { get; set; }
     }
 }
